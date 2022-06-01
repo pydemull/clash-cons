@@ -158,7 +158,7 @@ vo2_approx <- data.frame(
 final_data <- left_join(tcpo2_correct_drop, vo2_approx)
 final_data <- final_data[2:1112, ]
   
-# Animation ----------
+# Animations ----------
 
 ## Set figure resolution & fps
 res <- 400
@@ -191,22 +191,23 @@ tcpo2_plot <-
     geom_richtext(aes(y = drop_leg_right), color = "#0CB702", label = "Right Leg", nudge_x = 3, hjust = 0, show.legend = FALSE, vjust = 0.5, size = 6, label.padding = unit(0.5, "lines")) +
     geom_image(aes(x = 0, y = -55, image = img_copyr), hjust = 0, size = 0.1, asp = 5) +
     geom_text(aes(x = 310, y = -55), label = "Animation designed by @pydemullenheim | Data source: CLASH project (NCT02041169) \nData acquisition: @pydemullenheim @Chaudru_ @GMahe_ (main investigator) @AlexLeFaucheur (main investigator) | Sponsor: Rennes University Hospital", hjust = 0, size  = 5) +
+    geom_rect(aes(xmin = max(time) + 1, xmax = max(time) + 60, ymin = -45, ymax = 15), color = "white", fill = "white") +
     labs(
       x = "Time (hh:mm:ss)", 
       y = as.expression(bquote(DROP~TcPO[2]~ (mmHg))), 
       color = "Probe",
       subtitle = "
-      <span style='color:#3F51B5'>DROP<sub>2</sub> Right Buttock (mmHg): {round((final_data)$drop_buttock_right[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))], 0)}</span><br> 
-      <span style='color:#0CB702'>DROP<sub>2</sub> Right Leg (mmHg): {round((final_data)$drop_leg_right[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))], 0)}</span><br> 
-      <span style='color:#FFCC00'>DROP<sub>2</sub> Left Buttock (mmHg): {round((final_data)$drop_buttock_left[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))], 0)}</span><br> 
-      <span style='color:#FF68A1'>DROP<sub>2</sub> Left Leg (mmHg): {round((final_data)$drop_leg_left[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))], 0)}</span>
+      <span style='color:#3F51B5'>DROP TcPO<sub>2</sub> Right Buttock (mmHg): {round((final_data)$drop_buttock_right[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))], 0)}</span><br> 
+      <span style='color:#0CB702'>DROP TcPO<sub>2</sub> Right Leg (mmHg): {round((final_data)$drop_leg_right[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))], 0)}</span><br> 
+      <span style='color:#FFCC00'>DROP TcPO<sub>2</sub> Left Buttock (mmHg): {round((final_data)$drop_buttock_left[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))], 0)}</span><br> 
+      <span style='color:#FF68A1'>DROP TcPO<sub>2</sub> Left Leg (mmHg): {round((final_data)$drop_leg_left[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))], 0)}</span>
       "
       ) +
     theme_bw() +
     scale_x_time(breaks = hms(c(10*60, 20*60, 30*60, 40*60))) +
     scale_y_continuous(breaks = seq(-40, 10, 5)) +
     scale_color_manual(values = c("white", "grey95")) +
-    coord_cartesian(clip = "off", expand = FALSE, ylim = c(-42, 13)) +
+    coord_cartesian(clip = "off", expand = FALSE, ylim = c(-42, 13), xlim = c(0, max(final_data$time))) +
     theme(
       axis.title.x = element_text(size = 16, vjust = -0.5),
       axis.text.x = element_text(size = 12),
@@ -224,7 +225,7 @@ tcpo2_plot <-
     guides(color = "none", fill = "none") +
     force_panelsizes(rows = 5, cols = 8) +
     transition_reveal(time, keep_last = TRUE) 
-  
+
 tcpo2_anim <- animate(tcpo2_plot, renderer = gifski_renderer(), device = "ragg_png", fps = fps, duration = duration, width = 10, height = 3.5, units = "cm", res = res, scaling = 0.2)
 anim_save("tcpo2_anim.gif", animation = tcpo2_anim)
 
@@ -245,7 +246,7 @@ vo2_plot <-
     x = "Time (hh:mm:ss)", 
     y = as.expression(bquote(VO[2]~ (mL/min))),
     subtitle = "
-    <span style='color:blue'>VO2 (mL/min): {round((final_data)$vo2[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))], 0)}</span>
+    <span style='color:blue'>VO<sub>2</sub> (mL/min): {round((final_data)$vo2[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))], 0)}</span>
     "
   ) +
   theme_bw() +
@@ -271,7 +272,6 @@ vo2_plot <-
 
 vo2_anim <- animate(vo2_plot, renderer = gifski_renderer(), device = "ragg_png", fps = fps, duration = duration, width = 10, height = 1.5, units = "cm", res = res, scaling = 0.2)
 anim_save("vo2_anim.gif", animation = vo2_anim)
-
 
 ## Build HR animation
 hr_plot <-
@@ -317,7 +317,6 @@ hr_plot <-
 hr_anim <- animate(hr_plot, renderer = gifski_renderer(), device = "ragg_png", fps = fps, duration = duration, width = 10, height = 1.5, units = "cm", res = res, scaling = 0.2)
 anim_save("hr_anim.gif", animation = hr_anim)
 
-
 ## Build Bouts animation
 bouts_plot <-
   ggplot(data = final_data, aes(x = time)) +
@@ -330,21 +329,30 @@ bouts_plot <-
   geom_rect(aes(group = time, xmin = as_hms(120+30*60+51), xmax = ifelse(time >=as_hms(120+30*60+51) & time <=as_hms(120+33*60+3), time, 120+30*60+51), ymin = -Inf, ymax = Inf),color = NA,  fill = "grey95") +
   geom_rect(aes(group = time, xmin = as_hms(120+34*60+19), xmax = ifelse(time >=as_hms(120+34*60+19) & time <=max(time), time, as_hms(120+34*60+19)), ymin = -Inf, ymax = Inf), color = NA, fill = "grey95") +
   geom_line(aes(y = labels_num, group = 1), size = 0.7) +
-  geom_richtext(aes(y = labels_num, group = 1, fill = as.factor(labels_num), label = labels), fontface = "bold", color = "white", hjust = 0, vjust = 0.5.5, size = 6, label.padding = unit(0.7, "lines")) +
+  geom_hline(aes(yintercept = 1), linetype = "dashed", size = 0.5, color = "grey10") +
+  geom_hline(aes(yintercept = 2), linetype = "dashed", size = 0.5, color = "grey10") +
+  # Below a duplicated line (see 3 lines above) because putting this line only after the geom_hline() functions did not work.
+  # This line just below is added to have the black line onto the horizontal grey lines
+  geom_line(aes(y = labels_num, group = 1), size = 0.7) +
+  geom_richtext(aes(y = labels_num, group = 1, fill = as.factor(labels_num), label = labels), fontface = "bold", color = "white", hjust = 0, vjust = 0.5, size = 6, label.padding = unit(0.7, "lines")) +
   labs(
-    x = "Time (hh:mm:ss)", 
     title = as.expression(bquote(atop(bold(Example~of~Physiological~Recording~During~Consecutive~Treadmill~Maximal~Walking~Bouts~"in"~People~with~Symptomatic~PAD~"(CLASH study)")))), 
     subtitle = "
-    <span style='color:black'>Time: {(final_data)$time_lap[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))]}</span>
+    <span style='color:black'>Walk / Rest Time (hh:mm:ss): {(final_data)$time_lap[which.min(abs(as.numeric(final_data$time)-as.numeric(frame_along)))]}</span>
     "
-  ) +
+ ) +
+  geom_richtext(aes(x = 10, y = 1), label = "REST", fontface = "bold", fill = "white", color = "black", hjust = 0, vjust = 0.5, size = 3, label.padding = unit(0.5, "lines")) +
+  geom_richtext(aes(x = 10, y = 2), label = "WALK", fontface = "bold", fill = "white", color = "black", hjust = 0, vjust = 0.5, size = 3, label.padding = unit(0.5, "lines")) +
   theme_bw() +
   coord_cartesian(expand = FALSE, ylim = c(0.1, 2.9)) +
   scale_color_manual(values = c("white", "grey95")) +
   theme(
     axis.title = element_blank(),
-    axis.text =  element_blank(),
-    axis.ticks = element_blank(),
+    axis.text.x =  element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.y = element_text(hjust = 0.5, size = 5, margin = unit(c(t = 0, r = -0.35, b = 0, l = 0), "cm")),
+    axis.ticks.length.y = unit(-2, "mm"),
     plot.title = element_text(face = "bold", size = 20),
     plot.subtitle = element_markdown(size = 17, lineheight = 1.1),
     plot.margin = unit(c(1,1,0,2), "lines"),
@@ -359,23 +367,4 @@ bouts_plot <-
 
 bouts_anim <- animate(bouts_plot, renderer =  gifski_renderer(), device = "ragg_png", fps = fps, duration = duration, width = 10, height = 1.3, units = "cm", res = res, scaling = 0.2)
 anim_save("bouts_anim.gif", animation = bouts_anim)
-
-
-## Convert gifs to images
-bouts_mgif <- image_read(bouts_anim)
-vo2_mgif <- image_read(vo2_anim)
-hr_mgif <- image_read(hr_anim)
-tcpo2_mgif <- image_read(tcpo2_anim)
-
-## Combine animations (https://github.com/thomasp85/gganimate/wiki/Animation-Composition; https://stackoverflow.com/questions/61908979/multiple-gganimate-plots-both-stacked-and-side-by-side)
-combined <- image_append(c(bouts_mgif[1], vo2_mgif[1], hr_mgif[1], tcpo2_mgif[1]), stack = TRUE)
-new_gif <-  image_flatten(combined)
-
-for(i in 2:(duration * fps)){
-  combined <- image_append(c(bouts_mgif[i], vo2_mgif[i], hr_mgif[i], tcpo2_mgif[i]), stack = TRUE)
-  fullcombined <- image_flatten(combined)
-  new_gif <- c(new_gif, fullcombined)
-}
-
-image_write(new_gif, format="gif", path="clahs_ex.gif")
 
