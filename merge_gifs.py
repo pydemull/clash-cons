@@ -42,4 +42,4 @@ os.environ["IMAGEIO_FFMPEG_EXE"] = "C:\\ffmpeg\\bin\\ffmpeg"
 import ffmpeg
 import moviepy.editor as mp
 clip = mp.VideoFileClip("output.gif")
-clip.write_videofile("output.mp4", codec='h264_qsv', bitrate = '1100k', audio_codec='avc1', fps = 25, audio = False)
+clip.write_videofile("output.mp4", codec='h264_qsv', fps = 25, audio = False)
