@@ -9,7 +9,6 @@ library(ggh4x)
 library(ggimage)
 library(ragg)
 library(gganimate)
-library(magick)
 
 ## Function to correct tcPO2 data
 correct_tpco2 <- function(x) {
@@ -160,7 +159,7 @@ final_data <- final_data[2:1112, ]
   
 # Animations ----------
 
-## Set figure resolution & fps
+## Set figure resolution, fps, and duration
 res <- 400
 fps <- 10
 duration <- 90
