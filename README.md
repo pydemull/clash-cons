@@ -1,0 +1,2 @@
+# Content
+This repository contains the code generating GIFs (script.R) and then a MP4 video (merge_gifs.py) showing how physiological variables (VO2, HR, DROP tcPO2) are changing over time during consecutive treadmill maximal walking bouts in a patient with a symptomatic PAD. The underlying data are from the [CLASH](https://www.clinicaltrials.gov/ct2/show/NCT02041169?term=clash&draw=2&rank=2) project. Data are not available.
